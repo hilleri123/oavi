@@ -18,18 +18,28 @@ def pixel_gen(img, mask=[[1]], default=0):
                         res[tmp_i] += tmp_val
             yield ((col, row), res)
 
+class Rect:
+    def __init__(self, top, bottom, left, right):
+        self.top = top
+        self.bottom = bottom
+        self.left = left
+        self.right = right
+
+    def inside(self, point):
+        return left <= point[0] and point[0] <= right and bottom <= point[1] and point[1] <= top
 
 
-def hystogram(img):
+def hystogram(img, rect = None):
     res = None
-    for _, (_, p) in enumerate(pixel_gen(img)):
+    for _, (point, pix) in enumerate(pixel_gen(img)):
         if res is None:
-            res = [{} for _ in p]
-        for i, val in enumerate(p):
-            if val in res[i].keys():
-                res[i][val] += 1
-            else:
-                res[i][val] = 1
+            res = [{} for _ in pix]
+        if rect == None or rect.inside(point):
+            for i, val in enumerate(pix):
+                if val in res[i].keys():
+                    res[i][val] += 1
+                else:
+                    res[i][val] = 1
     return res
 
 
