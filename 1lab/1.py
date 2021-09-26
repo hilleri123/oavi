@@ -4,38 +4,12 @@ import random
 import sys
 from PIL import Image, ImageDraw
 
-
-def pixel_gen(img):
-    pix = img.load()
-    for row in range(img.size[1]):
-        for col in range(img.size[0]):
-            yield ((col, row), pix[col, row])
+from main import *
 
 
 
-def hystogram(img):
-    res = None
-    for _, (_, p) in enumerate(pixel_gen(img)):
-        if res is None:
-            res = [{} for _ in p]
-        for i, val in enumerate(p):
-            if val in res[i].keys():
-                res[i][val] += 1
-            else:
-                res[i][val] = 1
-    return res
 
-def main():
-    if len(sys.argv) < 2:
-        print("no file given")
-        return
-    image = Image.open(sys.argv[-1])
-    draw = ImageDraw.Draw(image)
-    for _, (pos, p) in enumerate(pixel_gen(image)):
-        s = sum(p[:3]) // 3
-        draw.point(pos, (s,s,s))
-    image.save("res_0.jpg", "JPEG")
-
+def hysto(image, draw):
     h = hystogram(image)[0]
     begin = min(h.keys())
     end = max(h.keys())
@@ -64,6 +38,7 @@ def main():
                 right -= h.get(mid+1, 0)
                 mid += 1
     threshold_pix = h.get(mid, 0)
+
     print(threshold_pix)
 
     for _, (pos, p) in enumerate(pixel_gen(image)):
@@ -76,4 +51,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(hysto)
