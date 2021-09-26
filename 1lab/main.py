@@ -2,6 +2,7 @@
 
 import random
 import sys
+import typing
 from PIL import Image, ImageDraw
 
 
@@ -18,6 +19,8 @@ def pixel_gen(img, mask=[[1]], default=0):
                         res[tmp_i] += tmp_val
             yield ((col, row), res)
 
+Point_type = typing.Tuple[int, int]
+
 class Rect:
     def __init__(self, top, bottom, left, right):
         self.top = top
@@ -25,11 +28,17 @@ class Rect:
         self.left = left
         self.right = right
 
-    def inside(self, point):
+    def move(self, point:Point_type):
+        self.left += point[0]
+        self.right += point[0]
+        self.top += point[1]
+        self.bottom += point[1]
+
+    def inside(self, point:Point_type):
         return left <= point[0] and point[0] <= right and bottom <= point[1] and point[1] <= top
 
 
-def hystogram(img, rect = None):
+def hystogram(img, rect:Rect = None):
     res = None
     for _, (point, pix) in enumerate(pixel_gen(img)):
         if res is None:
