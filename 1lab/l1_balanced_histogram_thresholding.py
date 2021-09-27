@@ -9,6 +9,7 @@ from main import *
 
 
 
+@print_durations
 def hysto(image, draw):
     h = hystogram(image)[0]
     begin = min(h.keys())

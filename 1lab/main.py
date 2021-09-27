@@ -5,6 +5,7 @@ import sys
 import typing
 import numpy as np
 from PIL import Image, ImageDraw
+from funcy import print_durations
 
 Point_type = typing.Tuple[int, int]
 Hystogram_type = typing.Dict[int, int]
@@ -54,6 +55,11 @@ class Rect:
         self.left = left
         self.right = right
 
+
+    def __iter__(self):
+        #return tuple((x, y) for x in range(self.left, self.right+1) for y in range(self.bottom, self.top+1))
+        return tuple((x, y) for y in range(self.bottom, self.top+1) for x in range(self.left, self.right+1)).__iter__()
+
     def move(self, point:Point_type):
         self.left += point[0]
         self.right += point[0]
@@ -69,7 +75,7 @@ class Rect:
         self.bottom = 0
 
     def inside(self, point:Point_type):
-        return left <= point[0] and point[0] <= right and bottom <= point[1] and point[1] <= top
+        return self.left <= point[0] and point[0] <= self.right and self.bottom <= point[1] and point[1] <= self.top
 
 
 def hystogram(img:Image, rect:Rect = None):
@@ -87,6 +93,7 @@ def hystogram(img:Image, rect:Rect = None):
 
 
 
+@print_durations
 def main(func=None):
     if len(sys.argv) < 2:
         print("no file given")

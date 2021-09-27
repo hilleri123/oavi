@@ -37,6 +37,7 @@ def otsu_calc(h:Hystogram_type):
     return threshold_pix
 
 
+@print_durations
 def otsu(image, draw):
     h = hystogram(image)[0]
     threshold_pix = otsu_calc(h)
