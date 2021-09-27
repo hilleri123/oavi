@@ -23,7 +23,7 @@ def default_mask_apply(pix_img, mask, point:Point_type):
 
 
 
-def pixel_gen(img, mask=[[1]], default=0, apply_func=default_mask_apply):
+def pixel_gen(img:Image, mask=[[1]], default=0, apply_func=default_mask_apply):
     pix = img.load()
     for row in range(img.size[1]):
         for col in range(img.size[0]):
@@ -31,7 +31,7 @@ def pixel_gen(img, mask=[[1]], default=0, apply_func=default_mask_apply):
             yield (pos, tuple(apply_func(pix, mask, pos)))
 
 
-def integral_copy(img):
+def integral_copy(img:Image):
     res = img.copy()
     res_pix = img.load()
     draw = ImageDraw.Draw(res)
@@ -60,11 +60,19 @@ class Rect:
         self.top += point[1]
         self.bottom += point[1]
 
+    def move_to_left(self):
+        self.right -= self.left
+        self.left = 0
+
+    def move_to_bottom(self):
+        self.top -= self.bottom
+        self.bottom = 0
+
     def inside(self, point:Point_type):
         return left <= point[0] and point[0] <= right and bottom <= point[1] and point[1] <= top
 
 
-def hystogram(img, rect:Rect = None):
+def hystogram(img:Image, rect:Rect = None):
     res = None
     for _, (point, pix) in enumerate(pixel_gen(img)):
         if res is None:

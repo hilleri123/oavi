@@ -6,20 +6,27 @@ from PIL import Image, ImageDraw
 
 from main import *
 
-from 2_otsu import otsu_calc
+from l2_otsu import otsu_calc
 
 
 
 
 
 def ekvila(image, draw):
-    h = hystogram(image)[0]
     R = Rect(top = 15, bottom = 0, left = 0, right = 15)
     r = Rect(top = 3,  bottom = 0, left = 0, right = 3)
     right_top = image.size
     
     integral_img = integral_copy(image)
     integral_img.save("integral.jpg", "JPEG")
+
+    right_point = (1,0)
+    top_point = (0,1)
+    h = hystogram(image)[0]
+    return 
+    while r.right > right_top[0] and r.top != right_top[1]:
+        small_h = hystogram(integral_img, r)[0]
+
 #!!!!!!!!!!!!!!!!!!
 
     begin = min(h.keys())
