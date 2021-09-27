@@ -5,7 +5,6 @@ import sys
 from PIL import Image, ImageDraw
 from main import *
 
-from l2_otsu import otsu_calc
 
 
 #15 - это типа много

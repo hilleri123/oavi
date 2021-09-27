@@ -100,7 +100,7 @@ def main(func=None):
         return
     image = Image.open(sys.argv[-1])
     draw = ImageDraw.Draw(image)
-    for _, (pos, p) in enumerate(pixel_gen(image)):
+    for pos, p in pixel_gen(image):
         s = sum(p[:3]) // 3
         draw.point(pos, (s,s,s))
     image.save("res_0.jpg", "JPEG")
