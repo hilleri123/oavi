@@ -26,7 +26,9 @@ def ekvila(image, draw):
     R = Rect(top = 15, bottom = 0, left = 0, right = 15)
     r = Rect(top = 3,  bottom = 0, left = 0, right = 3)
     right_top = image.size
-
+    
+    integral_img = integral_copy(image)
+    integral_img.save("integral.jpg", "JPEG")
 #!!!!!!!!!!!!!!!!!!
 
     begin = min(h.keys())

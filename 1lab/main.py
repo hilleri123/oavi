@@ -3,7 +3,10 @@
 import random
 import sys
 import typing
+import numpy as np
 from PIL import Image, ImageDraw
+
+
 
 
 def pixel_gen(img, mask=[[1]], default=0):
@@ -11,13 +14,31 @@ def pixel_gen(img, mask=[[1]], default=0):
     mid_mask = (len(mask)//2, len(mask[0])//2)
     for row in range(img.size[1]):
         for col in range(img.size[0]):
-            res = [0]*len(pix[0,0])
+            res = np.zeros(len(pix[0,0]), dtype=int)
             for imask, mask_row in enumerate(mask):
                 for jmask, mask_val in enumerate(mask_row):
-                    tmp = mask_val * pix[col+jmask-mid_mask[0], row+imask-mid_mask[1]]
-                    for tmp_i, tmp_val in enumerate(tmp):
-                        res[tmp_i] += tmp_val
-            yield ((col, row), res)
+                    try:
+                        tmp = mask_val * pix[col+jmask-mid_mask[0], row+imask-mid_mask[1]]
+                    except IndexError:
+                        tmp = [0]*len(res)
+                    res += tmp
+            yield ((col, row), tuple(res))
+
+
+def integral_copy(img):
+    res = img.copy()
+    res_pix = img.load()
+    draw = ImageDraw.Draw(res)
+    for (x, y), pix in pixel_gen(res):
+        new_pix = np.array(pix)
+        if x > 0:
+            new_pix += res_pix[x-1, y]
+        if y > 0:
+            new_pix += res_pix[x, y-1]
+        if x > 0 and y > 0:
+            new_pix -= res_pix[x-1, y-1]
+        draw.point((x, y), tuple(new_pix))
+    return res
 
 Point_type = typing.Tuple[int, int]
 
