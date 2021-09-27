@@ -6,31 +6,22 @@ from PIL import Image, ImageDraw
 
 from main import *
 
-def M_h(hystogram, t):
+def M_h(h:Hystogram_type, t):
     M = [0,0]
-    for key, val in hystogram.items():
+    for key, val in h.items():
         M[int(key > t)] += val
     return M
 
 
-def D_h(hystogram, M, t):
+def D_h(h:Hystogram_type, M, t):
     D = [0,0]
-    M = M_h(hystogram, t)
-    for key, val in hystogram.items():
-        D[int(key > t)] += val / sum(hystogram.values()) * (key - M[int(key > t)])**2
+    M = M_h(h, t)
+    for key, val in h.items():
+        D[int(key > t)] += val / sum(h.values()) * (key - M[int(key > t)])**2
     return D
 
 
-def ekvila(image, draw):
-    h = hystogram(image)[0]
-    R = Rect(top = 15, bottom = 0, left = 0, right = 15)
-    r = Rect(top = 3,  bottom = 0, left = 0, right = 3)
-    right_top = image.size
-    
-    integral_img = integral_copy(image)
-    integral_img.save("integral.jpg", "JPEG")
-#!!!!!!!!!!!!!!!!!!
-
+def otsu_calc(h:Hystogram_type):
     begin = min(h.keys())
     end = max(h.keys())
     max_val = None
@@ -43,6 +34,12 @@ def ekvila(image, draw):
         D_cls = M[0] * M[1] * (M[0] - M[1])**2 / pix_count**2
         if max_val == None or max_val < D_cls/D_all:
             threshold_pix = h[t]
+    return threshold_pix
+
+
+def otsu(image, draw):
+    h = hystogram(image)[0]
+    threshold_pix = otsu_calc(h)
 
     print(threshold_pix)
 
@@ -56,4 +53,4 @@ def ekvila(image, draw):
 
 
 if __name__ == "__main__":
-    main(ekvila)
+    main(otsu)

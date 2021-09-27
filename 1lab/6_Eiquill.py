@@ -6,23 +6,22 @@ from PIL import Image, ImageDraw
 
 from main import *
 
-def M_h(hystogram, t):
-    M = [0,0]
-    for key, val in hystogram.items():
-        M[int(key > t)] += val
-    return M
+from 2_otsu import otsu_calc
 
 
-def D_h(hystogram, M, t):
-    D = [0,0]
-    M = M_h(hystogram, t)
-    for key, val in hystogram.items():
-        D[int(key > t)] += val / sum(hystogram.values()) * (key - M[int(key > t)])**2
-    return D
 
 
-def otsu(image, draw):
+
+def ekvila(image, draw):
     h = hystogram(image)[0]
+    R = Rect(top = 15, bottom = 0, left = 0, right = 15)
+    r = Rect(top = 3,  bottom = 0, left = 0, right = 3)
+    right_top = image.size
+    
+    integral_img = integral_copy(image)
+    integral_img.save("integral.jpg", "JPEG")
+#!!!!!!!!!!!!!!!!!!
+
     begin = min(h.keys())
     end = max(h.keys())
     max_val = None
@@ -48,4 +47,4 @@ def otsu(image, draw):
 
 
 if __name__ == "__main__":
-    main(otsu)
+    main(ekvila)

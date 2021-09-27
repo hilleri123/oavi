@@ -6,23 +6,29 @@ import typing
 import numpy as np
 from PIL import Image, ImageDraw
 
+Point_type = typing.Tuple[int, int]
+Hystogram_type = typing.Dict[int, int]
 
-
-
-def pixel_gen(img, mask=[[1]], default=0):
-    pix = img.load()
+def default_mask_apply(pix_img, mask, point:Point_type):
     mid_mask = (len(mask)//2, len(mask[0])//2)
+    res = np.zeros(len(pix_img[0,0]), dtype=int)
+    for imask, mask_row in enumerate(mask):
+        for jmask, mask_val in enumerate(mask_row):
+            try:
+                tmp = mask_val * pix_img[point[0]+jmask-mid_mask[0], point[1]+imask-mid_mask[1]]
+            except IndexError:
+                tmp = [0]*len(res)
+            res += tmp
+    return res
+
+
+
+def pixel_gen(img, mask=[[1]], default=0, apply_func=default_mask_apply):
+    pix = img.load()
     for row in range(img.size[1]):
         for col in range(img.size[0]):
-            res = np.zeros(len(pix[0,0]), dtype=int)
-            for imask, mask_row in enumerate(mask):
-                for jmask, mask_val in enumerate(mask_row):
-                    try:
-                        tmp = mask_val * pix[col+jmask-mid_mask[0], row+imask-mid_mask[1]]
-                    except IndexError:
-                        tmp = [0]*len(res)
-                    res += tmp
-            yield ((col, row), tuple(res))
+            pos = (col, row)
+            yield (pos, tuple(apply_func(pix, mask, pos)))
 
 
 def integral_copy(img):
@@ -40,7 +46,6 @@ def integral_copy(img):
         draw.point((x, y), tuple(new_pix))
     return res
 
-Point_type = typing.Tuple[int, int]
 
 class Rect:
     def __init__(self, top, bottom, left, right):
