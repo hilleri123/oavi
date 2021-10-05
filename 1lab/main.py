@@ -92,6 +92,7 @@ def hystogram(img:Image, rect:Rect = None):
     return res
 
 
+name = sys.argv[-1].split('.')[0]
 
 @print_durations
 def main(func=None):
@@ -103,7 +104,7 @@ def main(func=None):
     for pos, p in pixel_gen(image):
         s = sum(p[:3]) // 3
         draw.point(pos, (s,s,s))
-    image.save("res_0.jpg", "JPEG")
+    image.save("res_" + name + "_0.jpg", "JPEG")
 
     if func:
         func(image, draw)

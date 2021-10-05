@@ -54,7 +54,7 @@ def kristian(image, draw):
 
 
 
-    image.save("res_4.jpg", "JPEG")
+    image.save("res_"+name+"_4.jpg", "JPEG")
 
 
 

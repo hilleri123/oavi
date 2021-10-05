@@ -47,7 +47,7 @@ def hysto(image, draw):
         if p[0] < threshold_pix:
             s = 254
         draw.point(pos, (s,s,s))
-    image.save("res_1.jpg", "JPEG")
+    image.save("res_"+name+"_1.jpg", "JPEG")
 
 
 

@@ -38,7 +38,7 @@ def nilblack(image, draw):
 
 
 
-    image.save("res_3.jpg", "JPEG")
+    image.save("res_"+name+"_3.jpg", "JPEG")
 
 
 

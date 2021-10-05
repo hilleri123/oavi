@@ -21,6 +21,7 @@ def D_h(h:Hystogram_type, M, t):
     return D
 
 
+@print_durations
 def otsu_calc(h:Hystogram_type):
     begin = min(h.keys())
     end = max(h.keys())
@@ -33,7 +34,14 @@ def otsu_calc(h:Hystogram_type):
         D_all = sum([i*j for i, j in zip(M, D)]) / pix_count
         D_cls = M[0] * M[1] * (M[0] - M[1])**2 / pix_count**2
         if max_val == None or max_val < D_cls/D_all:
-            threshold_pix = h[t]
+            try:
+                threshold_pix = h[t]
+            except KeyError:
+                tmp = t
+                while not tmp in h.keys():
+                    tmp -= 1
+                threshold_pix = h[tmp]
+
     return threshold_pix
 
 
@@ -49,7 +57,7 @@ def otsu(image, draw):
         if p[0] < threshold_pix:
             s = 254
         draw.point(pos, (s,s,s))
-    image.save("res_2.jpg", "JPEG")
+    image.save("res_"+name+"_2.jpg", "JPEG")
 
 
 

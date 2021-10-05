@@ -33,7 +33,7 @@ def bernstein(image, draw):
 
 
 
-    image.save("res_5.jpg", "JPEG")
+    image.save("res_"+name+"_5.jpg", "JPEG")
 
 
 
