@@ -1,0 +1,115 @@
+#!/usr/bin/python3
+
+import random
+import sys
+import typing
+import numpy as np
+from PIL import Image, ImageDraw
+from funcy import print_durations
+
+Point_type = typing.Tuple[int, int]
+Hystogram_type = typing.Dict[int, int]
+
+def default_mask_apply(pix_img, mask, point:Point_type):
+    mid_mask = (len(mask)//2, len(mask[0])//2)
+    res = np.zeros(len(pix_img[0,0]), dtype=int)
+    for imask, mask_row in enumerate(mask):
+        for jmask, mask_val in enumerate(mask_row):
+            try:
+                tmp = mask_val * pix_img[point[0]+jmask-mid_mask[0], point[1]+imask-mid_mask[1]]
+            except IndexError:
+                tmp = [0]*len(res)
+            res += tmp
+    return res
+
+
+
+def pixel_gen(img:Image, mask=[[1]], default=0, apply_func=default_mask_apply):
+    pix = img.load()
+    for row in range(img.size[1]):
+        for col in range(img.size[0]):
+            pos = (col, row)
+            yield (pos, tuple(apply_func(pix, mask, pos)))
+
+
+def integral_copy(img:Image):
+    res = img.copy()
+    res_pix = img.load()
+    draw = ImageDraw.Draw(res)
+    for (x, y), pix in pixel_gen(res):
+        new_pix = np.array(pix)
+        if x > 0:
+            new_pix += res_pix[x-1, y]
+        if y > 0:
+            new_pix += res_pix[x, y-1]
+        if x > 0 and y > 0:
+            new_pix -= res_pix[x-1, y-1]
+        draw.point((x, y), tuple(new_pix))
+    return res
+
+
+class Rect:
+    def __init__(self, top, bottom, left, right):
+        self.top = top
+        self.bottom = bottom
+        self.left = left
+        self.right = right
+
+
+    def __iter__(self):
+        #return tuple((x, y) for x in range(self.left, self.right+1) for y in range(self.bottom, self.top+1))
+        return tuple((x, y) for y in range(self.bottom, self.top+1) for x in range(self.left, self.right+1)).__iter__()
+
+    def move(self, point:Point_type):
+        self.left += point[0]
+        self.right += point[0]
+        self.top += point[1]
+        self.bottom += point[1]
+
+    def move_to_left(self):
+        self.right -= self.left
+        self.left = 0
+
+    def move_to_bottom(self):
+        self.top -= self.bottom
+        self.bottom = 0
+
+    def inside(self, point:Point_type):
+        return self.left <= point[0] and point[0] <= self.right and self.bottom <= point[1] and point[1] <= self.top
+
+
+def hystogram(img:Image, rect:Rect = None):
+    res = None
+    for _, (point, pix) in enumerate(pixel_gen(img)):
+        if res is None:
+            res = [{} for _ in pix]
+        if rect == None or rect.inside(point):
+            for i, val in enumerate(pix):
+                if val in res[i].keys():
+                    res[i][val] += 1
+                else:
+                    res[i][val] = 1
+    return res
+
+
+name = sys.argv[-1].split('.')[0]
+
+@print_durations
+def main(func=None):
+    if len(sys.argv) < 2:
+        print("no file given")
+        return
+    image = Image.open(sys.argv[-1])
+    draw = ImageDraw.Draw(image)
+    for pos, p in pixel_gen(image):
+        s = sum(p[:3]) // 3
+        draw.point(pos, (s,s,s))
+    image.save("res_" + name + "_0.jpg", "JPEG")
+
+    if func:
+        func(image, draw)
+
+
+
+if __name__ == "__main__":
+    main()
