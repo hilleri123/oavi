@@ -67,7 +67,7 @@ def difference(first:Image, last:Image):
     for (x, y), pix in pixel_gen(res):
         new_pix = np.array(pix)
         new_pix -= np.array(last_pix[x, y])
-        draw.point((x, y), tuple(new_pix))
+        draw.point((x, y), tuple(np.absolute(new_pix)))
     return res
 
 

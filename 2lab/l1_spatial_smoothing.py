@@ -25,6 +25,7 @@ def new_apply_func(pix_img, mask, point:Point_type):
 @print_durations
 def spatial_smoothing(image, draw):
     res = image.copy()
+    draw = ImageDraw.Draw(res)
     mask = [[1,1,1],
             [1,0,1],
             [1,1,1]]
