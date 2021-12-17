@@ -2,7 +2,7 @@
 
 from main import *
 
-lab = 4
+lab = 6
 
 def new_apply_func(pix_img, mask, point:Point_type):
     mid_mask = (len(mask)//2, len(mask[0])//2)
@@ -16,48 +16,54 @@ def new_apply_func(pix_img, mask, point:Point_type):
                 tmp = np.zeros(len(pix_img[point]))
             pixs[imask, jmask] = tmp
 
-    if np.sum(pixs) >= 6*255*len(pix_img[point]):
+    if np.sum(pixs) >= 255*len(pix_img[point]):
         return (255, 255, 255)
-    elif np.sum(pixs) <= 2*255*len(pix_img[point]):
+    elif np.sum(pixs) <= 255*len(pix_img[point]):
         return (0,0,0)
     else:
         return pix_img[point]
 
 
 @print_durations
-def median_x(image, noise_img):
-    masks = {'hollow':
-            [[0,0,1,0,0],
-             [0,1,1,1,0],
-             [1,1,1,1,1],
-             [0,1,1,1,0],
-             [0,0,1,0,0]],
-            'hill':
-            [[1,1,1,1,1],
-             [1,0,0,0,1],
-             [1,0,1,0,1],
-             [1,0,0,0,1],
-             [1,1,1,1,1]],
+def rang(image, noise_img):
+    r3 = 1/3
+    r4 = 1/4
+    r5 = 1/5
+    r6 = 1/6
+    masks = {'rang3':
+            [[r3,r3,r3],
+             [r3,r3,r3],
+             [r3,r3,r3]],
+            'rang4':
+            [[r4,r4,r4],
+             [r4,r4,r4],
+             [r4,r4,r4]],
+            'rang5':
+            [[r5,r5,r5],
+             [r5,r5,r5],
+             [r5,r5,r5]],
+            'rang6':
+            [[r6,r6,r6],
+             [r6,r6,r6],
+             [r6,r6,r6]],
             }
 
-    mask_name = ''
     res = image.copy()
-    draw = ImageDraw.Draw(res)
-    for curr_mask_name, mask in masks.items():
-        mask_name += curr_mask_name
+    for mask_name, mask in masks.items():
         tmp_res = res.copy()
-        for pos, p in pixel_gen(tmp_res, mask=mask, apply_func=new_apply_func):
+        draw = ImageDraw.Draw(tmp_res)
+        for pos, p in pixel_gen(res, mask=mask, apply_func=new_apply_func):
             draw.point(pos, p)
     
     
-        res.save(f"res_{name}_{mask_name}_{lab}.jpg", "JPEG")
+        tmp_res.save(f"res_{name}_{mask_name}_{lab}.jpg", "JPEG")
     
-        diff_img = difference(noise_img, res)
+        diff_img = difference(noise_img, tmp_res)
         diff_img.save(f"res_{name}_diff_{mask_name}_{lab}.jpg", "JPEG")
     return res
 
 
 if __name__ == "__main__":
-    main(median_x, lab)
+    main(rang, lab)
 
 
