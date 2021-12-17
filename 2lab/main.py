@@ -75,7 +75,7 @@ def difference(first:Image, last:Image):
 name = sys.argv[-1].split('.')[0]
 
 @print_durations
-def main(func=None):
+def main(func=None, lab=0):
     if len(sys.argv) < 2:
         print("no file given")
         return
@@ -84,14 +84,15 @@ def main(func=None):
     for pos, p in pixel_gen(image):
         s = sum(p[:3]) // 3
         draw.point(pos, (s,s,s))
-    image.save("res_" + name + "_0.jpg", "JPEG")
+    image.save(f"res_{name}_0.jpg", "JPEG")
     noise_image = add_noise(image)
-    noise_image.save("res_" + name + "_noise.jpg", "JPEG")
+    noise_image.save(f"res_{name}_noise_{lab}.jpg", "JPEG")
 
     if func:
-        res_img = func(image, draw)
-        diff_img = difference(noise_image, res_img)
-        diff_img.save("res_" + name + "_diff.jpg", "JPEG")
+        res_img = func(image, noise_image)
+        #if res_img:
+            #diff_img = difference(noise_image, res_img)
+            #diff_img.save("res_" + name + "_diff.jpg", "JPEG")
 
 
 
