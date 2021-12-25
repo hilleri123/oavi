@@ -67,6 +67,9 @@ def move_point(p0:Point_type, p1:Point_type):
 def get_moment(img:Image, p:int, q:int, x_c:int, y_c:int, r:Rect=None):
     m = 0
     for (x, y), pix in pixel_gen(img, r=r):
+        if not r is None:
+            x -= r.start[0]
+            y -= r.start[1]
         m += (x-x_c)**p * (y-y_c)**q * pix
     return m 
 
@@ -87,6 +90,9 @@ def calc_center_of_gravity(img:Image, acc:pd.Series, r:Rect=None):
     res = [0,0]
     for idx, (p, q) in enumerate([(1, 0), (0, 1)]):
         for (x, y), pix in pixel_gen(img, r=r):
+            if not r is None:
+                x -= r.start[0]
+                y -= r.start[1]
             res[idx] += x**p * y**q * pix
     return tuple(i/acc[header_names[0][0]] for i in res)
 
@@ -120,7 +126,20 @@ header_names = (
         #("profiles",calc_profiles), #6
         )
 
+norm_attr = tuple(header_names[i][0] for i in [1,3,5])
+print(norm_attr)
 
+def distance(s0:pd.Series, s1:pd.Series):
+    d = 0
+    for attr in norm_attr:
+        if isinstance(s0[attr], Iterable):
+            tmp_d = 0
+            for i, j in zip(s0[attr], s1[attr]):
+                tmp_d += (i-j)**2
+            d += tmp_d
+        else:
+            d += (s0[attr]-s1[attr])**2
+    return 1-np.sqrt(d)
 
 
 def main():
@@ -130,6 +149,15 @@ def main():
     threshould = [0.95, 0.6]
     space = 4
 
+    base_directory = "pics"
+    if not os.path.exists(base_directory):
+        os.makedirs(base_directory)
+
+    char_directory = f"{base_directory}/chars"
+    if not os.path.exists(char_directory):
+        os.makedirs(char_directory)
+
+
     base_h = 12
     base_fnt = ImageFont.truetype(f"/usr/share/fonts/truetype/{fonts[0]}", base_h)
     base_data = pd.DataFrame({cl_name:[] for cl_name, _ in header_names})
@@ -138,17 +166,27 @@ def main():
         img = Image.new('RGB', char_size, color = WHITE)
         d = ImageDraw.Draw(img)
         d.text((0,0), char, font=base_fnt, fill=BLACK)
+        
+        pixs = img.load()
+        top_y = 0
+        end_loop = False
+        for y in range(img.size[1]):
+            top_y = y
+            for x in range(img.size[0]):
+                if pixs[x, y][0] < WHITE[0]/2:
+                    end_loop = True
+                    break
+            if end_loop:
+                break
+
+        img = img.crop((0, top_y, img.size[0], img.size[1]))
+        img.save(f"{char_directory}/{idx}.png")
 
         row = pd.Series(name=char)
         for col, (col_name, func) in enumerate(header_names):
             row = row.append(pd.Series({col_name:func(img, row)}))
         row.name = char
         base_data = base_data.append(row)
-
-
-    base_directory = "pics"
-    if not os.path.exists(base_directory):
-        os.makedirs(base_directory)
 
     base_data.to_csv(f'{base_directory}/base_data_{base_h}.csv')
     print(base_data)
@@ -200,7 +238,7 @@ def main():
                     elif curr_x <= threshould[1] and prev_x > threshould[1]:
                         bottom_y = curr_y
                     prev_x = curr_x
-                res_r = Rect(start=(left_x, top_y,), end=(x, bottom_y,))
+                res_r = Rect(start=(left_x-1, top_y-1,), end=(x, bottom_y,))
                 rects.append(res_r)
                 rect = Rectangle(res_r.start, res_r.size[0], res_r.size[1], linewidth=1, edgecolor='green', facecolor='none')
                 ax.add_patch(rect)
@@ -211,16 +249,23 @@ def main():
 
         
         print('rects')
-        data = pd.DataFrame({cl_name:[] for cl_name, _ in header_names})
-        for idx, rect in enumerate(progress.bar(rects)):
-            row = pd.Series(name=idx)
+        data = pd.DataFrame({char_name:[] for char_name in base_data.index})
+        for idx_r, rect in enumerate(progress.bar(rects)):
+            tmp_data = pd.Series(name=idx)
             for col, (col_name, func) in enumerate(header_names):
-                row = row.append(pd.Series({col_name:func(img, row, r=rect)}))
-            row.name = idx
+                tmp_data = tmp_data.append(pd.Series({col_name:func(img, tmp_data, r=rect)}))
+
+            row = pd.Series()
+            for idx, base_row in base_data.iterrows():
+                row = row.append(pd.Series({idx:distance(base_row, tmp_data)}))
+            row.name = idx_r
             data = data.append(row)
 
         data.to_csv(f'{directory}/data_{h}.csv')
         print(data)
+
+
+
 
 
 
