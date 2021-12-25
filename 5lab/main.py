@@ -93,7 +93,6 @@ def main():
         ax.imshow(np.asarray(prof_img))
         ax.plot(x_prof, label="x profile", color="red")
         ax.plot(y_prof, range(y_prof.size), label="y profile", color="green")
-        ax.legend()
         f.savefig(f'{directory}/{h}_profile.png')
         plt.close(f)
 
