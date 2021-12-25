@@ -56,7 +56,7 @@ def get_moment(img:Image, p:int, q:int, x_c:int, y_c:int):
     m = 0
     for (x, y), pix in pixel_gen(img):
         m += (x-x_c)**p * (y-y_c)**q * pix
-    return m
+    return m 
 
 
 def calc_weight(img:Image, _:pd.Series):
@@ -81,7 +81,7 @@ def calc_norm_center_of_gravity(img:Image, acc:pd.Series):
 def calc_axial_moments(img:Image, acc:pd.Series):
     res = [0,0]
     x_c, y_c = acc[header_names[2][0]]
-    for idx, (p, q) in enumerate([(2, 0), (0, 2)]):
+    for idx, (p, q) in enumerate([(0, 2), (2, 0)]):
         res[idx] = get_moment(img, p=p, q=q, x_c=x_c, y_c=y_c)
     return tuple(res)
 
@@ -145,12 +145,14 @@ def main():
             prof_d = ImageDraw.Draw(prof_img)
             prof_d.text((0,0), char, font=fnt, fill=BLACK)
             x_prof, y_prof = get_profile(prof_img)
-            plt.gca().invert_yaxis()
-            plt.imshow(np.asarray(prof_img))
-            plt.plot(x_prof, label="x profile", color="red")
-            plt.plot(y_prof, range(y_prof.size), label="y profile", color="green")
-            plt.legend()
+            f = plt.figure()
+            ax = f.add_subplot(111)
+            ax.imshow(np.asarray(prof_img))
+            ax.plot(x_prof, label="x profile", color="red")
+            ax.plot(y_prof, range(y_prof.size), label="y profile", color="green")
+            ax.legend()
             plt.savefig(f'{directory}/{idx}_{char}_profile.png')
+            plt.close(f)
 
 
             #
