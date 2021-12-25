@@ -86,7 +86,7 @@ def calc_axial_moments(img:Image, acc:pd.Series):
     return tuple(res)
 
 def calc_norm_axial_moments(img:Image, acc:pd.Series):
-    sub = sum(i**2 for i in img.size)
+    sub = sum(acc[header_names[4][0]])
     return tuple(i/sub for i in acc[header_names[4][0]])
 
 #def calc_profiles(img:Image, acc:pd.Series):
