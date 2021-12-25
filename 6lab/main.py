@@ -263,7 +263,17 @@ def main():
 
         data.to_csv(f'{directory}/data_{h}.csv')
         print(data)
-
+        
+        data_to_print = pd.DataFrame()
+        for idx, row in data.iterrows():
+            prep_row = row.sort_values(ascending=False)
+            tmp_row = pd.Series()
+            for i, val in enumerate(prep_row[:10]):
+                tmp_row = tmp_row.append(pd.Series({i:(prep_row.index[i], np.round(val,2))}))
+            tmp_row.name = alphabet[idx]
+            data_to_print = data_to_print.append(tmp_row)
+        data_to_print.to_csv(f'{directory}/res_data_{h}.csv')
+        print(data_to_print)
 
 
 
