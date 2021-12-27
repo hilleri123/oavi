@@ -167,6 +167,9 @@ def main():
         d = ImageDraw.Draw(img)
         d.text((0,0), char, font=base_fnt, fill=BLACK)
         
+        rects = []
+        left_x = 0
+        prev_y = None
         pixs = img.load()
         top_y = 0
         end_loop = False
@@ -179,12 +182,40 @@ def main():
             if end_loop:
                 break
 
-        img = img.crop((0, top_y, img.size[0], img.size[1]))
+        #img = img.crop((0, top_y, img.size[0], img.size[1]))
         img.save(f"{char_directory}/{idx}.png")
 
+        x_prof, y_prof = get_profile(img)
+        for x, y in enumerate(progress.bar(x_prof)):
+            y = img.size[1] - y
+            if prev_y is None:
+                prev_y = y
+                continue
+            if y > threshould[0] and prev_y <= threshould[0]:
+                left_x = x
+            elif y <= threshould[0] and prev_y > threshould[0]:
+                tmp_r = Rect(start=(left_x, 0,), end=(x, img.size[1],))
+
+                _, curr_y_prof = get_profile(img, r=tmp_r)
+                top_y = 0
+                bottom_y = img.size[1]
+                prev_x = None
+                for curr_y, curr_x in enumerate(curr_y_prof):
+                    if prev_x is None:
+                        prev_x = curr_x
+                        continue
+                    if curr_x > threshould[1] and prev_x <= threshould[1]:
+                        top_y = curr_y
+                    elif curr_x <= threshould[1] and prev_x > threshould[1]:
+                        bottom_y = curr_y
+                    prev_x = curr_x
+                res_r = Rect(start=(left_x-1, top_y-1,), end=(x, bottom_y,))
+                rects.append(res_r)
+            prev_y = y
+        rects.append(Rect(start=(0,0),end=img.size))
         row = pd.Series(name=char)
         for col, (col_name, func) in enumerate(header_names):
-            row = row.append(pd.Series({col_name:func(img, row)}))
+            row = row.append(pd.Series({col_name:func(img, row, r=rects[0])}))
         row.name = char
         base_data = base_data.append(row)
 
@@ -216,7 +247,6 @@ def main():
         prev_y = None
         for x, y in enumerate(progress.bar(x_prof)):
             y = img.size[1] - y
-            #print(x, y)
             if prev_y is None:
                 prev_y = y
                 continue
