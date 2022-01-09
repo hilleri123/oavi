@@ -158,7 +158,7 @@ def main():
         os.makedirs(char_directory)
 
 
-    base_h = 12
+    base_h = 30
     base_fnt = ImageFont.truetype(f"/usr/share/fonts/truetype/{fonts[0]}", base_h)
     base_data = pd.DataFrame({cl_name:[] for cl_name, _ in header_names})
     for idx, char in enumerate(progress.bar(alphabet)):
