@@ -10,6 +10,7 @@ from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 from collections.abc import Iterable 
+import random
 
 
 
@@ -143,11 +144,14 @@ def distance(s0:pd.Series, s1:pd.Series):
 
 
 def main():
-    height = [12, 15, 30]
+    height = [15, 24, 30]
     fonts = ["dejavy/DejaVuSansCondensed.ttf", "freefont/FreeMono.ttf", "croscore/Arimo-Italic.ttf"]
 
     threshould = [0.95, 0.6]
     space = 4
+
+    text_line = ''.join([random.choice(alphabet) for i in range(50)])
+    print(text_line)
 
     base_directory = "pics"
     if not os.path.exists(base_directory):
@@ -229,9 +233,9 @@ def main():
 
         fnt = ImageFont.truetype(f"/usr/share/fonts/truetype/{fonts[0]}", h)
 
-        img = Image.new('RGB', (space+fnt.getsize(alphabet)[0]+space, space+h+space), color = WHITE)
+        img = Image.new('RGB', (space+fnt.getsize(text_line)[0]+space, space+h+space), color = WHITE)
         d = ImageDraw.Draw(img)
-        d.text((space, space), alphabet, font=fnt, fill=BLACK)
+        d.text((space, space), text_line, font=fnt, fill=BLACK)
         img.save(f'{directory}/base.png')
 
 
@@ -300,7 +304,7 @@ def main():
             tmp_row = pd.Series()
             for i, val in enumerate(prep_row[:10]):
                 tmp_row = tmp_row.append(pd.Series({i:(prep_row.index[i], np.round(val,2))}))
-            tmp_row.name = alphabet[idx]
+            tmp_row.name = text_line[idx]
             data_to_print = data_to_print.append(tmp_row)
         data_to_print.to_csv(f'{directory}/res_data_{h}.csv')
         print(data_to_print)
