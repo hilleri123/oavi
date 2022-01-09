@@ -49,10 +49,12 @@ def Haralic_matrix(name:str, mono_img:Image, d:int, phi:tuple):
     res = np.zeros((WHITE[0]+1, WHITE[0]+1))
     hist = np.zeros(WHITE[0]+1)
     func = create_apply_func(d=d, phi=phi)
+    max_max = 0
     for pos, (val, row) in progress.bar(pixel_gen(mono_img, func), expected_size=mono_img.size[0]*mono_img.size[1]):
         res[val] += row
+        max_max = max(max_max, max(row))
         hist[val] += 1
-    res_img = Image.fromarray(np.uint8(res))
+    res_img = Image.fromarray(np.uint8(res*255/max_max))
     res_img.save(f"{name}_matrix.jpg", "JPEG")
     return (res_img, hist)
 
