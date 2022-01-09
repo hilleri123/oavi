@@ -18,13 +18,17 @@ def l56_grad(image):
     rang = 230
     for var, g_func in zip([5,6],gradient_functions):
         res = image.copy()
+        res_tmp = image.copy()
         draw = ImageDraw.Draw(res)
+        draw_tmp = ImageDraw.Draw(res_tmp)
         for pos, g in gradient(image, G_x, G_y, g_func=g_func):
             if g > rang:
                 draw.point(pos, x)
             else:
-                draw.point(pos, o)
+                draw.point(pos, o)        
+            draw_tmp.point(pos, int(g))
         res.save(f"res_{name}_rang{rang}_{var}.jpg", "JPEG")
+        res_tmp.save(f"res_{name}_gradient{rang}_{var}.jpg", "JPEG")
 
     return image
 
