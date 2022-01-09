@@ -26,7 +26,7 @@ def l56_grad(image):
                 draw.point(pos, x)
             else:
                 draw.point(pos, o)        
-            draw_tmp.point(pos, int(g))
+            draw_tmp.point(pos, (int(g),)*3)
         res.save(f"res_{name}_rang{rang}_{var}.jpg", "JPEG")
         res_tmp.save(f"res_{name}_gradient{rang}_{var}.jpg", "JPEG")
 
